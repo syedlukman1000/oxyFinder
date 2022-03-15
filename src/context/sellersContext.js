@@ -29,7 +29,7 @@ export const SellersProvider = ({ children }) => {
     const [mySells, setMySells] = React.useState([])
     const [dt, setdt] = React.useState([])
 
-
+    console.log(dt)
     React.useEffect(() => {
 
         db.collection("sellers").where("pin", "==", userdata.pin)
@@ -37,7 +37,7 @@ export const SellersProvider = ({ children }) => {
             .then((querySnapshot) => {
                 const data = []
                 querySnapshot.forEach((doc) => {
-                    data.push(doc.data())
+                    data.push({ ...doc.data(), sid: doc.id })
                 });
                 if (data.length < 5) {
                     var p = userdata.pin
@@ -49,6 +49,7 @@ export const SellersProvider = ({ children }) => {
                             var datad = []
                             querySnapshot.forEach((doc) => {
                                 datad.push({ ...doc.data(), sid: doc.id })
+                                console.log(datad)
                             });
                             setdt(datad)
                         })
@@ -91,7 +92,7 @@ export const SellersProvider = ({ children }) => {
             .then((querySnapshot) => {
                 const data = []
                 querySnapshot.forEach((doc) => {
-                    data.push(doc.data())
+                    data.push({ ...doc.data(), sid: doc.id })
                 });
                 if (data.length < 5) {
                     var p = userdata.pin
@@ -144,7 +145,7 @@ export const SellersProvider = ({ children }) => {
             .then((querySnapshot) => {
                 const data = []
                 querySnapshot.forEach((doc) => {
-                    data.push(doc.data())
+                    data.push({ ...doc.data(), sid: doc.id })
                 });
                 if (data.length < 5) {
                     var p = pin

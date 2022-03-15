@@ -1,8 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Animated, ActivityIndicator, TextInput, Dimensions } from 'react-native'
 
 import { useNavigation } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+
+import { Entypo } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+
+import { Feather } from '@expo/vector-icons';
+
+import { BarIndicator } from 'react-native-indicators';
+
+
 import * as  firebase1 from 'firebase';
 
 import firebase from 'firebase'
@@ -23,14 +34,34 @@ import RequestsContext from './context/requestsContext'
 
 
 var db = firebase1.default.firestore();
-
+const windowWidth = Dimensions.get('window').width;
 const RequestsScreen = (props) => {
 
     const { user } = useContext(AuthContext)
+    const { loadingUser } = React.useContext(UserContext)
+
+    //const { pin } = useContext(UserContext)
+    const [searchPin, setSearchPin] = useState('');
+    console.log(searchPin)
+
+    const [heightValue] = useState(new Animated.Value(0))
+
+    const [expandedItems, setExpandedItems] = useState("")
+
+    const expand = (rid) => {
+
+        if (rid == expandedItems) {
+            setExpandedItems("")
+        }
+        else {
+            setExpandedItems(rid)
+        }
+    }
+    console.log(expandedItems)
+
+    const { requestsData, fetchPin, loadingRequests, fetchRequestsAgain } = React.useContext(RequestsContext)
 
 
-    const { requestsData } = React.useContext(RequestsContext)
-    console.log(`requests : ${requestsData}`)
     const nav = useNavigation();
     useEffect(() => {
         nav.setOptions({
@@ -41,48 +72,172 @@ const RequestsScreen = (props) => {
     })
 
 
+    const fetch = (pin) => {
+        fetchPin(pin)
+        setSearchPin('')
+    }
 
+
+
+
+    console.log(expandedItems)
     return <View style={styles.body}>
+        <View style={styles.uplayer}>
+            <View style={styles.searchlayout}>
+                <TextInput
+                    value={searchPin}
+                    onChangeText={setSearchPin}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={styles.input}
+                    placeholder="Pincode"
+                />
+                <TouchableOpacity
+                    style={styles.search}
+                    onPress={() => fetch(searchPin)}
+                >
 
-        <FlatList
-            scrollEnabled={true}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.name}
-            data={requestsData}
-            renderItem={({ item }) => {
-                return <View style={styles.outerview}>
-                    <View style={styles.flex}>
-                        <Text style={styles.name}>{item.name}</Text>
-                        <View style={styles.innerview}>
-                            <Text style={styles.quantity}>{item.quantity} cylinders</Text>
-                            <Text style={styles.pin}>pin : {item.pin}</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity style={styles.button}><Text style={styles.insidebtn}>Contact</Text></TouchableOpacity>
-                </View>
-            }}
+                    <Text style={styles.insidebtn}>search</Text>
+
+                </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+
+                onPress={() => fetchRequestsAgain()}
+            >
+                <FontAwesome name="refresh" size={24} color="black" />
+            </TouchableOpacity>
+        </View>
+        {
+            (loadingRequests || loadingUser) ?
+                <BarIndicator color='black' size={25} style={{ padding: 0, margin: 0 }} />
+                :
+                (requestsData.length == 0) ?
+                    <Text style={{ color: "#939FAB" }}>no requests found</Text>
+                    :
+
+                    <FlatList
+                        scrollEnabled={true}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item) => item.rid}
+                        data={requestsData}
+                        renderItem={({ item }) => {
+                            console.log(item)
+                            return <View style={[styles.outerview]}>
+                                <View style={styles.row}>
+                                    <Text style={styles.name}>{item.name}</Text>
+                                    <View style={styles.pinexp}>
+                                        <Text style={styles.marig}>{item.pin}</Text>
+                                        <TouchableOpacity onPress={() => expand(item.rid)}>
+                                            {(item.rid == expandedItems)
+                                                ?
+                                                <MaterialIcons name="expand-less" size={24} color="black" />
+                                                :
+                                                <MaterialIcons name="expand-more" size={24} color="black" />
+                                            }
+                                        </TouchableOpacity>
+                                    </View>
 
 
-        />
+
+                                </View>
+                                <View style={{ display: (item.rid == expandedItems) ? "flex" : "none" }}>
+                                    <View style={styles.rowsimple}>
+                                        <MaterialCommunityIcons name="bottle-soda-outline" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.quantity} cylinders</Text>
+                                    </View>
+                                    <View style={styles.rowsimple}>
+                                        <Feather name="phone" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.phone}</Text>
+                                    </View>
+                                    <View style={styles.rowsimple}>
+                                        <Entypo name="address" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.address}</Text>
+                                    </View>
+
+
+                                </View>
+
+
+                            </View>
+                        }}
+
+
+                    />
+        }
+
 
 
     </View>
 }
 
 const styles = StyleSheet.create({
+    rowsimple: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10
+    },
+    pinexp: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+
+    },
+    marig: {
+        marginRight: 10
+
+    },
+    searchlayout: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around"
+
+    },
+    search: {
+        backgroundColor: "black",
+        color: "white",
+        textAlign: "center",
+        paddingVertical: 8,
+        paddingHorizontal: 8,
+        height: 40,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+
+    },
+    uplayer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: "space-between",
+        width: windowWidth * 0.9,
+        marginTop: 20,
+        marginBottom: 20
+    },
+    input: {
+        height: 40,
+        borderWidth: 1,
+        padding: 10,
+        width: 200
+
+    },
+    row: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
     body: {
         alignItems: "center",
         flex: 1
     },
+    margintop: {
+        marginTop: 30
+    },
     flex: {
         flex: 1
-    },
-    quantity: {
-        fontSize: 10
-    },
-    pin: {
-        fontSize: 10,
-        marginRight: 100
     },
     name: {
         fontSize: 14,
@@ -99,25 +254,19 @@ const styles = StyleSheet.create({
     insidebtn: {
         color: "white",
         textAlign: "center",
-        fontSize: 8
+        fontSize: 12
     },
     outerview: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        height: 50,
-        margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginBottom: 20,
-        borderWidth: 2
-
-    },
-    innerview: {
-        flexDirection: "row",
-        justifyContent: "space-between"
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        padding: 15,
+        width: windowWidth * 0.9,
+        borderRadius: 5,
+        marginBottom: 30,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5
 
     }
 

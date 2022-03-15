@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+
+import { BarIndicator } from 'react-native-indicators';
 
 
 import * as  firebase1 from 'firebase';
@@ -15,7 +17,9 @@ if (!firebase.apps.length) {
 
 var db = firebase1.default.firestore();
 
+var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})");
 
+const windowWidth = Dimensions.get('window').width;
 const signup = (props) => {
     const [mail, onChangeText] = React.useState("");
     const [pass, onChangeNumber] = React.useState(null);
@@ -24,49 +28,61 @@ const signup = (props) => {
     const [loading, setLoading] = React.useState(false)
 
     const [err, setErr] = React.useState(null)
+    const [passErr, setPassErr] = React.useState(null)
 
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
 
 
     const signupfunc = (email, password) => {
+        setErr(null)
+        setPassErr(null)
+
         setLoading(true)
-        firebase1.default.auth().createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                db.collection("user").add({
-                    uid: user.uid,
-                    pin: pin
-                })
-                    .then((docRef) => {
-                        console.log("Document written with ID: ", docRef.id);
+        if (strongRegex.test(password)) {
+            setPassErr(null)
+            firebase1.default.auth().createUserWithEmailAndPassword(email, password)
 
+                .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+                    db.collection("user").add({
+                        email: email,
+                        uid: user.uid,
+                        pin: pin
                     })
-                    .catch((error) => {
-                        console.error("Error adding document: ", error);
-                    });
-                props.navigation.navigate('main', { uid: user.uid })
-                console.log(user)
+                        .then((docRef) => {
+                            console.log("Document written with ID: ", docRef.id);
 
-                setErr(null)
-                setLoading(false)
+                        })
+                        .catch((error) => {
+                            console.error("Error adding document: ", error);
+                        });
+                    props.navigation.navigate('main', { uid: user.uid })
+                    console.log(user)
 
-                // ...
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorMessage)
-                setLoading(false)
-                setErr(error.message)
-                // ..
-            });
+                    setErr(null)
+                    setLoading(false)
+
+                    // ...
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(errorMessage)
+                    setLoading(false)
+                    setErr(error.message)
+                    // ..
+                });
+        }
+        else {
+            setPassErr("password must contain a lowercase character[a-z], uppercase character[A-Z], digit[0-9], special character[!@#\$%\^&\*] and must be of length greater than 6")
+            setLoading(false)
+        }
     }
 
     if (!user) {
         return <View style={styles.body}>
-            <Text style={styles.head}>Sign Up</Text>
             <TextInput
                 style={styles.input1}
                 onChangeText={onChangeText}
@@ -89,7 +105,7 @@ const signup = (props) => {
             />
             <TouchableOpacity
                 style={styles.link}
-                onPress={() => props.navigation.navigate('sign')}
+                onPress={() => props.navigation.navigate('Sign In')}
             >
                 <Text style={styles.link}>Already have an account? signin instead</Text>
             </TouchableOpacity>
@@ -102,12 +118,19 @@ const signup = (props) => {
 
             }
             {
+                (passErr) ?
+                    <Text style={styles.err}>{passErr}</Text>
+                    :
+                    null
+
+            }
+            {
                 (loading) ?
                     <TouchableOpacity
                         style={styles.button}
                     >
                         <View style={styles.loading}>
-                            <ActivityIndicator />
+                            <BarIndicator color='white' size={20} style={{ padding: 0, margin: 0 }} />
 
                         </View>
                     </TouchableOpacity>
@@ -152,32 +175,30 @@ const styles = StyleSheet.create({
         fontSize: 22
     },
     input1: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginTop: 130,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
 
     },
     input: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginBottom: 20,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
+
 
     },
     body: {
         flex: 1,
-        marginTop: 40,
-
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "center"
 
     },
     link: {
@@ -186,7 +207,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: "black",
         color: "white",
-        width: 330,
+        width: windowWidth * 0.9,
         textAlign: "center",
         paddingVertical: 13,
         borderRadius: 7,

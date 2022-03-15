@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+
+import { BarIndicator } from 'react-native-indicators';
 
 import * as  firebase from 'firebase';
 
 import AuthContext from './context/authContext'
 
-
+const windowWidth = Dimensions.get('window').width;
 const signin = (props) => {
     const [mail, onChangeText] = React.useState("");
     const [pass, onChangeNumber] = React.useState(null);
@@ -49,7 +51,7 @@ const signin = (props) => {
     }
 
     return <View style={styles.body}>
-        <Text style={styles.head}>Sign In</Text>
+
         <TextInput
             style={styles.input1}
             onChangeText={onChangeText}
@@ -65,7 +67,7 @@ const signin = (props) => {
         />
         <TouchableOpacity
             style={styles.link}
-            onPress={() => props.navigation.navigate('signu')}
+            onPress={() => props.navigation.navigate('Sign Up')}
         >
             <Text style={styles.link}>Don't have an account? signup instead</Text>
         </TouchableOpacity>
@@ -83,7 +85,7 @@ const signin = (props) => {
                     style={styles.button}
                 >
                     <View style={styles.loading}>
-                        <ActivityIndicator />
+                        <BarIndicator color='white' size={20} style={{ padding: 0, margin: 0 }} />
 
                     </View>
                 </TouchableOpacity>
@@ -122,32 +124,30 @@ const styles = StyleSheet.create({
         fontSize: 22
     },
     input1: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginTop: 130,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
 
     },
     input: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginBottom: 20,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
+
 
     },
     body: {
         flex: 1,
-        marginTop: 40,
-
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "center"
 
     },
     link: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: "black",
         color: "white",
-        width: 330,
+        width: windowWidth * 0.9,
         textAlign: "center",
         paddingVertical: 13,
         borderRadius: 7,

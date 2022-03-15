@@ -1,9 +1,17 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, TextInput, Dimensions } from 'react-native'
 
 import { useNavigation } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+
+import { Feather } from '@expo/vector-icons';
+
+import { BarIndicator } from 'react-native-indicators';
+
 
 
 
@@ -28,7 +36,10 @@ import SellersContext from './context/sellersContext'
 
 var db = firebase1.default.firestore();
 
+const windowWidth = Dimensions.get('window').width;
 const sellersScreen = (props) => {
+
+
 
     const { user } = useContext(AuthContext)
 
@@ -37,10 +48,25 @@ const sellersScreen = (props) => {
     console.log(searchPin)
 
 
+
+    const [expandedItems, setExpandedItems] = useState("")
+
+    const expand = (sid) => {
+
+        if (sid == expandedItems) {
+            setExpandedItems("")
+
+        }
+        else {
+            setExpandedItems(sid)
+
+        }
+    }
+    console.log(expandedItems)
+
     const { dt, loadingSellers, fetchPin, fetchAgain } = React.useContext(SellersContext)
     const { loadingUser } = React.useContext(UserContext)
-    console.log(loadingSellers)
-    console.log(loadingUser)
+
     console.log(dt)
     const nav = useNavigation();
     useEffect(() => {
@@ -56,6 +82,9 @@ const sellersScreen = (props) => {
         fetchPin(pin)
         setSearchPin('')
     }
+
+
+    console.log(dt)
     return <View style={styles.body}>
         <View style={styles.uplayer}>
             <View style={styles.searchlayout}>
@@ -85,26 +114,59 @@ const sellersScreen = (props) => {
         </View>
         {
             (loadingSellers || loadingUser) ?
-                <ActivityIndicator size="large" style={styles.margintop} />
+                <BarIndicator color='black' size={25} style={{ padding: 0, margin: 0 }} />
                 :
-                <FlatList
-                    scrollEnabled={true}
-                    showsVerticalScrollIndicator={false}
-                    keyExtractor={(item) => item.sid}
-                    data={dt}
-                    renderItem={({ item }) => {
-                        return <View style={styles.outerview}>
-                            <View style={styles.row}>
-                                <Text style={styles.name}>{item.name}</Text>
-                                <Text >{item.pin}</Text>
+                (dt.length == 0) ?
+                    <Text style={{ color: "#939FAB" }}>no sellers found</Text>
+                    :
+                    <FlatList
+                        scrollEnabled={true}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item) => item.sid}
+                        data={dt}
+                        renderItem={({ item }) => {
+                            console.log(item)
+                            return <View style={[styles.outerview]}>
+                                <View style={styles.row}>
+                                    <Text style={styles.name}>{item.name}</Text>
+                                    <View style={styles.pinexp}>
+                                        <Text style={styles.marig}>{item.pin}</Text>
+                                        <TouchableOpacity onPress={() => expand(item.sid)}>
+                                            {(item.sid == expandedItems)
+                                                ?
+                                                <MaterialIcons name="expand-less" size={24} color="black" />
+                                                :
+                                                <MaterialIcons name="expand-more" size={24} color="black" />
+                                            }
+                                        </TouchableOpacity>
+                                    </View>
+
+
+
+                                </View>
+                                <View style={{ display: (item.sid == expandedItems) ? "flex" : "none" }}>
+                                    <View style={styles.rowsimple}>
+                                        <MaterialCommunityIcons name="bottle-soda-outline" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.quantity} cylinders</Text>
+                                    </View>
+                                    <View style={styles.rowsimple}>
+                                        <Feather name="phone" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.phone}</Text>
+                                    </View>
+                                    <View style={styles.rowsimple}>
+                                        <Entypo name="address" size={20} color="black" style={{ marginRight: 10 }} />
+                                        <Text>{item.address}</Text>
+                                    </View>
+
+
+                                </View>
+
+
                             </View>
+                        }}
 
 
-                        </View>
-                    }}
-
-
-                />
+                    />
         }
 
 
@@ -113,6 +175,22 @@ const sellersScreen = (props) => {
 }
 
 const styles = StyleSheet.create({
+    rowsimple: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10
+    },
+    pinexp: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+
+    },
+    marig: {
+        marginRight: 10
+
+    },
     searchlayout: {
         display: "flex",
         flexDirection: "row",
@@ -137,7 +215,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: "space-between",
-        width: 330,
+        width: windowWidth * 0.9,
         marginTop: 20,
         marginBottom: 20
     },
@@ -156,8 +234,7 @@ const styles = StyleSheet.create({
     },
     body: {
         alignItems: "center",
-        flex: 1,
-        scrollEnabled: true
+        flex: 1
     },
     margintop: {
         marginTop: 30
@@ -186,15 +263,13 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-around',
-
-        height: 50,
-        padding: 20,
-        width: 330,
-        borderRadius: 7,
+        padding: 15,
+        width: windowWidth * 0.9,
+        borderRadius: 5,
         marginBottom: 30,
         borderColor: "#D2D5D8",
         borderStyle: "solid",
-        borderWidth: 2
+        borderWidth: 1.5
 
     }
 

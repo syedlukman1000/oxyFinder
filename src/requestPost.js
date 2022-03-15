@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, ScrollView } from 'react-native'
 
 import * as  firebase1 from 'firebase';
 
@@ -17,9 +17,11 @@ if (!firebase.apps.length) {
 import AuthContext from './context/authContext'
 
 
+import { BarIndicator } from 'react-native-indicators';
 
 
 var db = firebase1.default.firestore();
+const windowWidth = Dimensions.get('window').width;
 
 const requestScreen = (props) => {
     const { user } = React.useContext(AuthContext)
@@ -29,9 +31,12 @@ const requestScreen = (props) => {
     const [pin, setPin] = useState('');
     const [phone, setPhone] = useState('');
 
+    const [loading, setLoading] = React.useState(false)
+
     const { fetchRequestsAgain } = useContext(RequestsContext)
 
     const requestfunc = (name, quantity, address, pin, phone) => {
+        setLoading(true)
         db.collection("requests").add({
             name: name,
             quantity: quantity,
@@ -44,14 +49,16 @@ const requestScreen = (props) => {
                 console.log("Document written with ID: ", docRef.id);
                 fetchRequestsAgain()
                 props.navigation.navigate('requests')
+                setLoading(false)
 
 
             })
             .catch((error) => {
                 console.error("Error adding document: ", error);
+                setLoading(false)
             });
     }
-    return <View style={styles.body}>
+    return <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} scrollEnabled={true} showsVerticalScrollIndicator={false}>
         <TextInput
             value={name}
             onChangeText={setName}
@@ -92,15 +99,27 @@ const requestScreen = (props) => {
             autoCorrect={false}
             style={styles.input}
         />
+        {
+            (loading) ?
+                <TouchableOpacity
+                    style={styles.button}
+                >
+                    <View style={styles.loading}>
+                        <BarIndicator color='white' size={20} style={{ padding: 0, margin: 0 }} />
 
-        <TouchableOpacity
-            style={styles.button}
-            onPress={() => requestfunc(name, quantity, address, pin, phone)}
-        >
-            <Text style={styles.insidebtn}>Request</Text>
-        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+                :
 
-    </View>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => requestfunc(name, quantity, address, pin, phone)}
+                >
+                    <Text style={styles.insidebtn}>Request</Text>
+                </TouchableOpacity>
+        }
+
+    </ScrollView>
 }
 
 const styles = StyleSheet.create({
@@ -108,20 +127,20 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     input: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginBottom: 20,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
+
 
     },
     button: {
         backgroundColor: "black",
         color: "white",
-        width: 330,
+        width: windowWidth * 0.9,
         textAlign: "center",
         paddingVertical: 13,
         borderRadius: 7,

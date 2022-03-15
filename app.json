@@ -3,12 +3,12 @@
     "name": "oxyFinder",
     "slug": "oxyFinder",
     "privacy": "public",
-    "description": "jnkjfsfjbv",
-    "version": "1.0.0",
+    "description": "oxyFinder is an app, where people can find available oxygen cylinder dealers near them. Sellers can also sell with this app.",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/oxyFinderIcon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/oxyFinderSplash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,8 +22,9 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "syedlukman.oxyFinder",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/oxyFinderIcon1.png",
         "backgroundColor": "#FFFFFF"
       }
     },

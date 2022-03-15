@@ -27,6 +27,7 @@ if (!firebase.apps.length) {
 
 import signin from './src/signin'
 import signup from './src/signup'
+import start from './src/start'
 import sellersScreen from './src/sellers'
 import RequestsScreen from './src/requests'
 import requestScreen from './src/requestPost'
@@ -59,7 +60,11 @@ function selling() {
           backgroundColor: '#cae3eb',
         }
       }} />
-      <Stack.Screen name="sell" component={sellScreen} />
+      <Stack.Screen name="sell" component={sellScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
 
     </Stack.Navigator>
   )
@@ -67,8 +72,16 @@ function selling() {
 function requesting() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="requests" component={RequestsScreen} />
-      <Stack.Screen name="request" component={requestScreen} />
+      <Stack.Screen name="requests" component={RequestsScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
+      <Stack.Screen name="request" component={requestScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
 
     </Stack.Navigator>
   )
@@ -76,9 +89,21 @@ function requesting() {
 function Account() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Account" component={AccountScreen} />
-      <Stack.Screen name="mySells" component={MySellsScreen} />
-      <Stack.Screen name="myRequests" component={MyRequestsScreen} />
+      <Stack.Screen name="Account" component={AccountScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
+      <Stack.Screen name="mySells" component={MySellsScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
+      <Stack.Screen name="myRequests" component={MyRequestsScreen} options={{
+        headerStyle: {
+          backgroundColor: '#cae3eb',
+        }
+      }} />
 
     </Stack.Navigator>
   )
@@ -87,8 +112,8 @@ function Account() {
 const main = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="selling" component={selling} options={{ headerShown: false, tabBarIcon: () => (<FontAwesome name="refresh" size={24} color="black" />) }} />
-      <Tab.Screen name="requesting" component={requesting} options={{ headerShown: false, tabBarIcon: () => (<FontAwesome5 name="praying-hands" size={22} color="black" />) }} />
+      <Tab.Screen name="selling" component={selling} options={{ headerShown: false, tabBarIcon: () => (<MaterialCommunityIcons name="alpha-s-box-outline" size={24} color="black" />) }} />
+      <Tab.Screen name="requesting" component={requesting} options={{ headerShown: false, tabBarIcon: () => (<MaterialCommunityIcons name="alpha-r-box-outline" size={24} color="black" />) }} />
       <Tab.Screen name="Account" component={Account} options={{ headerShown: false, tabBarIcon: () => (<MaterialCommunityIcons name="account-box-outline" size={24} color="black" />) }} />
     </Tab.Navigator>
   );
@@ -103,8 +128,10 @@ const Application = () => {
 
         (user.uid == "") ?
           <>
-            <Stack.Screen name="sign" component={signin} />
-            <Stack.Screen name="signu" component={signup} />
+            <Stack.Screen name="start" component={start} options={{ headerShown: false }} />
+            <Stack.Screen name="Sign In" component={signin} />
+            <Stack.Screen name="Sign Up" component={signup} />
+
           </> :
           <Stack.Screen name="main" component={main} options={{ headerShown: false }} />
 

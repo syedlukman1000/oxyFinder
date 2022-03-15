@@ -22,6 +22,7 @@ var db = firebase1.default.firestore();
 
 export const RequestsProvider = ({ children }) => {
 
+    const [loadingRequests, setLoadingRequests] = React.useState(true)
     const { user } = React.useContext(AuthContext)
     const { userdata, fetchUser } = React.useContext(UserContext)
 
@@ -36,7 +37,7 @@ export const RequestsProvider = ({ children }) => {
             .then((querySnapshot) => {
                 const data = []
                 querySnapshot.forEach((doc) => {
-                    data.push(doc.data())
+                    data.push({ ...doc.data(), rid: doc.id })
                 });
                 if (data.length < 5) {
                     var p = userdata.pin
@@ -58,21 +59,21 @@ export const RequestsProvider = ({ children }) => {
                 else {
                     setRequestsData(data)
                 }
+                setLoadingRequests(false)
 
             })
             .catch((error) => {
                 console.log("Error getting documents: ", error);
+                setLoadingRequests(false)
             });
+
+
         db.collection("requests").where("uuid", "==", userdata.uid)
             .get()
             .then((querySnapshot) => {
                 const data1 = []
                 querySnapshot.forEach((doc) => {
-                    // doc.data() is never undefined for query doc snapshots
-                    //data1.push(doc.data())
                     data1.push({ ...doc.data(), rid: doc.id })
-
-                    //setdt(dt => [...dt, doc.data()]);
                     console.log(doc.id)
 
                 });
@@ -86,12 +87,13 @@ export const RequestsProvider = ({ children }) => {
     }, [userdata])
 
     const fetchRequestsAgain = () => {
+        setLoadingRequests(true)
         db.collection("requests").where("pin", "==", userdata.pin)
             .get()
             .then((querySnapshot) => {
                 const data = []
                 querySnapshot.forEach((doc) => {
-                    data.push(doc.data())
+                    data.push({ ...doc.data(), rid: doc.id })
                 });
                 if (data.length < 5) {
                     var p = userdata.pin
@@ -113,21 +115,19 @@ export const RequestsProvider = ({ children }) => {
                 else {
                     setRequestsData(data)
                 }
+                setLoadingRequests(false)
 
             })
             .catch((error) => {
                 console.log("Error getting documents: ", error);
+                setLoadingRequests(false)
             });
         db.collection("requests").where("uuid", "==", userdata.uid)
             .get()
             .then((querySnapshot) => {
                 const data1 = []
                 querySnapshot.forEach((doc) => {
-                    // doc.data() is never undefined for query doc snapshots
-                    //data1.push(doc.data())
                     data1.push({ ...doc.data(), rid: doc.id })
-
-                    //setdt(dt => [...dt, doc.data()]);
                     console.log(doc.id)
 
                 });
@@ -141,7 +141,49 @@ export const RequestsProvider = ({ children }) => {
     }
 
 
-    return <RequestsContext.Provider value={{ requestsData, myRequests, fetchRequestsAgain }}>
+    const fetchPin = (pin) => {
+        setLoadingRequests(true)
+        db.collection("requests").where("pin", "==", pin)
+            .get()
+            .then((querySnapshot) => {
+                const data = []
+                querySnapshot.forEach((doc) => {
+                    data.push({ ...doc.data(), rid: doc.id })
+                });
+                if (data.length < 5) {
+                    var p = pin
+                    var ub = p.slice(0, 3) + "999"
+                    var lb = p.slice(0, 3) + "000"
+                    db.collection("sellers").where("pin", "<=", ub).where("pin", ">=", lb)
+                        .get()
+                        .then((querySnapshot) => {
+                            var datad = []
+                            querySnapshot.forEach((doc) => {
+                                datad.push({ ...doc.data(), sid: doc.id })
+                            });
+                            setRequestsData(datad)
+                        })
+                        .catch((error) => {
+                            console.log("Error getting documents: ", error);
+                        });
+                }
+                else {
+                    setRequestsData(data)
+                }
+                setLoadingRequests(false)
+
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+                setLoadingRequests(false)
+            });
+
+    }
+
+
+
+
+    return <RequestsContext.Provider value={{ requestsData, myRequests, fetchRequestsAgain, fetchPin, loadingRequests }}>
         {children}
     </RequestsContext.Provider>
 }

@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Dimensions, ScrollView } from 'react-native'
 
 import * as  firebase1 from 'firebase';
 
@@ -19,10 +19,12 @@ if (!firebase.apps.length) {
 
 
 
+import { BarIndicator } from 'react-native-indicators';
 
 
 
 var db = firebase1.default.firestore();
+const windowWidth = Dimensions.get('window').width;
 
 const sellScreen = (props) => {
     const { user } = React.useContext(AuthContext)
@@ -60,7 +62,7 @@ const sellScreen = (props) => {
 
             });
     }
-    return <View style={styles.body}>
+    return <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} scrollEnabled={true} showsVerticalScrollIndicator={false}>
         <TextInput
             value={name}
             onChangeText={setName}
@@ -107,7 +109,7 @@ const sellScreen = (props) => {
                     style={styles.button}
                 >
                     <View style={styles.loading}>
-                        <ActivityIndicator />
+                        <BarIndicator color='white' size={20} style={{ padding: 0, margin: 0 }} />
 
                     </View>
                 </TouchableOpacity>
@@ -122,7 +124,7 @@ const sellScreen = (props) => {
         }
 
 
-    </View>
+    </ScrollView>
 }
 
 const styles = StyleSheet.create({
@@ -135,21 +137,22 @@ const styles = StyleSheet.create({
     body: {
         alignItems: "center"
     },
+
     input: {
-        height: 50,
         margin: 12,
-        borderWidth: 1,
-        padding: 10,
-        width: 330,
-        borderRadius: 7,
-        marginBottom: 20,
-        borderWidth: 2
+        padding: 12,
+        width: windowWidth * 0.9,
+        borderColor: "#D2D5D8",
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderRadius: 5,
+
 
     },
     button: {
         backgroundColor: "black",
         color: "white",
-        width: 330,
+        width: windowWidth * 0.9,
         textAlign: "center",
         paddingVertical: 13,
         borderRadius: 7,

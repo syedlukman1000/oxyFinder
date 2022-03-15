@@ -1,6 +1,6 @@
 import React from 'react'
 
-const AuthContext = React.createContext();
+
 
 
 import * as  firebase1 from 'firebase';
@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
     firebase.app(); // if already initialized, use that one
 }
 
-
+const AuthContext = React.createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = React.useState({ uid: "" });
     const [initializing, setInitializing] = React.useState(true);
